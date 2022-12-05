@@ -1,12 +1,15 @@
+#![feature(iter_array_chunks)]
+
 use std::{env, time::Instant};
 
 mod days;
 mod input;
 mod solution;
 
+use days::day4;
 use solution::SolutionPair;
 
-use crate::days::{day1, day2};
+use crate::days::{day1, day2, day3};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -33,6 +36,8 @@ fn get_day(day: u32) -> fn() -> SolutionPair {
     match day {
         1 => day1::solve,
         2 => day2::solve,
+        3 => day3::solve,
+        4 => day4::solve,
         _ => unimplemented!("day {} is unimplemented", day),
     }
 }

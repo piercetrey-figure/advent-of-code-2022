@@ -22,8 +22,7 @@ fn solve2(input: &str) -> Solution {
     Solution::I32(0)
 }
 
-
-
+#[cfg(test)]
 mod test {
     use crate::{input::get_input, solution::Solution};
 

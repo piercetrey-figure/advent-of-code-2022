@@ -6,10 +6,9 @@ mod days;
 mod input;
 mod solution;
 
-use days::day4;
 use solution::SolutionPair;
 
-use crate::days::{day1, day2, day3};
+use crate::days::{day1, day2, day3, day4, day5};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -38,6 +37,7 @@ fn get_day(day: u32) -> fn() -> SolutionPair {
         2 => day2::solve,
         3 => day3::solve,
         4 => day4::solve,
+        5 => day5::solve,
         _ => unimplemented!("day {} is unimplemented", day),
     }
 }

@@ -1,7 +1,5 @@
 use std::collections::HashSet;
 
-use phf::{phf_map, Set};
-
 use crate::{
     input::get_input,
     solution::{Solution, SolutionPair},
@@ -13,22 +11,30 @@ pub fn solve() -> SolutionPair {
 }
 
 fn solve1(input: &str) -> Solution {
-    let val = input.split("\n").collect::<Vec<_>>().iter().map(|line| {
-        let (left, right) = split_sack(line);
-        let common = find_common_item(&left, &right).unwrap();
-        item_priority(&common)
-    }).sum();
+    let val = input
+        .split("\n")
+        .collect::<Vec<_>>()
+        .iter()
+        .map(|line| {
+            let (left, right) = split_sack(line);
+            let common = find_common_item(&left, &right).unwrap();
+            item_priority(&common)
+        })
+        .sum();
     Solution::I32(val)
 }
 
 fn solve2(input: &str) -> Solution {
-    let val = groups_of_3(input).iter().map(|(one, two, three)| {
-        let common1and2 = find_common_items(one, two);
-        let set3: HashSet<_> = three.split("").into_iter().map(|i| i.to_string()).collect();
-        let intersection = common1and2.intersection(&set3).collect::<Vec<_>>();
-        let common = intersection.first().unwrap();
-        item_priority(common)
-    }).sum();
+    let val = groups_of_3(input)
+        .iter()
+        .map(|(one, two, three)| {
+            let common1and2 = find_common_items(one, two);
+            let set3: HashSet<_> = three.split("").into_iter().map(|i| i.to_string()).collect();
+            let intersection = common1and2.intersection(&set3).collect::<Vec<_>>();
+            let common = intersection.first().unwrap();
+            item_priority(common)
+        })
+        .sum();
     Solution::I32(val)
 }
 
@@ -40,31 +46,67 @@ fn item_priority(item: &str) -> i32 {
 
 fn split_sack(sack: &str) -> (String, String) {
     let items = sack.split("").into_iter().collect::<Vec<_>>();
-    (items[0..items.len() / 2].join(""), items[items.len() / 2..items.len()].join(""))
+    (
+        items[0..items.len() / 2].join(""),
+        items[items.len() / 2..items.len()].join(""),
+    )
 }
 
 fn find_common_item(left: &str, right: &str) -> Option<String> {
-    let left = left.split("").into_iter().filter(|i| !i.is_empty()).collect::<HashSet<_>>();
-    let right = right.split("").into_iter().filter(|i| !i.is_empty()).collect::<HashSet<_>>();
+    let left = left
+        .split("")
+        .into_iter()
+        .filter(|i| !i.is_empty())
+        .collect::<HashSet<_>>();
+    let right = right
+        .split("")
+        .into_iter()
+        .filter(|i| !i.is_empty())
+        .collect::<HashSet<_>>();
     let intersection = left.intersection(&right);
-    intersection.into_iter().collect::<Vec<_>>().first().map(|i| i.to_string())
+    intersection
+        .into_iter()
+        .collect::<Vec<_>>()
+        .first()
+        .map(|i| i.to_string())
 }
 
 fn find_common_items(left: &str, right: &str) -> HashSet<String> {
-    let left = left.split("").into_iter().filter(|i| !i.is_empty()).collect::<HashSet<_>>();
-    let right = right.split("").into_iter().filter(|i| !i.is_empty()).collect::<HashSet<_>>();
+    let left = left
+        .split("")
+        .into_iter()
+        .filter(|i| !i.is_empty())
+        .collect::<HashSet<_>>();
+    let right = right
+        .split("")
+        .into_iter()
+        .filter(|i| !i.is_empty())
+        .collect::<HashSet<_>>();
     let intersection = left.intersection(&right);
     intersection.into_iter().map(|i| i.to_string()).collect()
 }
 
 fn groups_of_3(lines: &str) -> Vec<(String, String, String)> {
-    lines.split("\n").into_iter().filter(|i| !i.is_empty()).array_chunks::<3>().map(|chunk| (chunk[0].to_string(), chunk[1].to_string(), chunk[2].to_string())).collect()
+    lines
+        .split("\n")
+        .into_iter()
+        .filter(|i| !i.is_empty())
+        .array_chunks::<3>()
+        .map(|chunk| {
+            (
+                chunk[0].to_string(),
+                chunk[1].to_string(),
+                chunk[2].to_string(),
+            )
+        })
+        .collect()
 }
 
+#[cfg(test)]
 mod test {
     use crate::{input::get_input, solution::Solution};
 
-    use super::{item_priority, split_sack, find_common_item, solve1, solve2, groups_of_3};
+    use super::{find_common_item, groups_of_3, item_priority, solve1, solve2, split_sack};
 
     fn sample_input() -> String {
         get_input(3, true, None)
@@ -84,7 +126,7 @@ mod test {
     }
 
     #[test]
-    fn common_test( ) {
+    fn common_test() {
         assert_eq!("a", find_common_item("1a43", "bdaf").unwrap());
     }
 
@@ -101,7 +143,8 @@ mod test {
                 ("4".to_string(), "5".to_string(), "6".to_string()),
                 ("7".to_string(), "8".to_string(), "9".to_string()),
             ],
-            groups_of_3("
+            groups_of_3(
+                "
 1
 2
 3
@@ -111,7 +154,8 @@ mod test {
 7
 8
 9
-            ")
+            "
+            )
         )
     }
 

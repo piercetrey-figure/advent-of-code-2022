@@ -1,0 +1,13 @@
+#! /bin/bash
+
+DAY=$1
+if [ -e "src/days/day$DAY.rs" ]; then
+    echo "FILE ALREADY EXISTS YA DUMMY"
+    exit 1
+fi
+cp src/days/template.rs "src/days/day$DAY.rs"
+echo "pub mod day$DAY;" >> src/days/mod.rs
+sed -i '' -e "s/<day>/$DAY/g" "src/days/day$DAY.rs"
+touch "src/input/${DAY}example" "src/input/$DAY"
+sed -i '' -e "s/use crate::days::{/use crate::days::{day$DAY, /" src/main.rs
+sed -i '' -e "s/_ => unimplemented!(\"day {} is unimplemented\"/$DAY => day$DAY::solve,\n\t_ => unimplemented!(\"day {} is unimplemented\"/" src/main.rs

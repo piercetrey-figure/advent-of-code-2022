@@ -1,9 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-    num,
-};
-
-use phf::{phf_map, Set};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::{
     input::get_input,
@@ -67,7 +62,7 @@ impl Rope {
 
     fn advance(&mut self) {
         let (dir, amt) = self.moves.pop_front().unwrap();
-        for i in (0..amt) {
+        for _ in 0..amt {
             match dir.as_str() {
                 "U" => self.positions[0] = (self.positions[0].0, self.positions[0].1 + 1),
                 "D" => self.positions[0] = (self.positions[0].0, self.positions[0].1 - 1),

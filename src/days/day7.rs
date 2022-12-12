@@ -46,7 +46,7 @@ fn solve2(input: &str) -> Solution {
 
 #[derive(Debug)]
 struct FileInfo {
-    pub name: String,
+    pub _name: String,
     pub size: usize,
 }
 
@@ -100,7 +100,7 @@ impl FS {
                     })
                 } else {
                     DirEntry::File(FileInfo {
-                        name: name.to_string(),
+                        _name: name.to_string(),
                         size: dir_info[0].parse().unwrap(),
                     })
                 };

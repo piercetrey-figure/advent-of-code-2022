@@ -1,6 +1,7 @@
 #![feature(iter_array_chunks)]
 #![feature(array_windows)]
 #![feature(iter_intersperse)]
+#![feature(int_roundings)]
 
 use std::{env, time::Instant};
 

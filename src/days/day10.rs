@@ -1,7 +1,3 @@
-use std::{collections::HashSet, fmt::Display};
-
-use phf::{phf_map, Set};
-
 use crate::{
     input::get_input,
     solution::{Solution, SolutionPair},
@@ -23,20 +19,25 @@ fn solve1(input: &str) -> Solution {
 fn solve2(input: &str) -> Solution {
     let (mut crt, commands) = parse_input(input);
     let pixels = crt.iterate_commands_pixels(&commands);
-    let screen = pixels.split("").enumerate().map(|(i, e)| {
-        if i != 1 && i % 40 == 1 {
-            format!("\n{}", e)
-        } else {
-            e.to_string()
-        }
-    }).collect::<Vec<_>>().join("");
+    let screen = pixels
+        .split("")
+        .enumerate()
+        .map(|(i, e)| {
+            if i != 1 && i % 40 == 1 {
+                format!("\n{}", e)
+            } else {
+                e.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("");
     Solution::String(screen)
 }
 
 struct CRT {
     cycle: i32,
     current_command: Option<Command>,
-    X: i32,
+    x: i32,
 }
 
 impl CRT {
@@ -52,9 +53,9 @@ impl CRT {
                     self.current_command = Some(Command::AddX(cycles_remaining - 1, value));
                 } else {
                     self.current_command = None;
-                    self.X += value;
+                    self.x += value;
                 }
-            },
+            }
             Some(Command::Noop(cycles_remaining)) => {
                 if cycles_remaining > 1 {
                     self.current_command = Some(Command::Noop(cycles_remaining - 1));
@@ -74,7 +75,7 @@ impl CRT {
                 self.iterate();
 
                 if (self.cycle - 20) % 40 == 0 {
-                    signal_strength += self.cycle * self.X;
+                    signal_strength += self.cycle * self.x;
                 }
             }
         }
@@ -94,7 +95,10 @@ impl CRT {
     }
 
     fn pixel(&self) -> char {
-        if ((self.X - 1) % 40) == ((self.cycle - 1) % 40) || ((self.X) % 40) == ((self.cycle - 1) % 40) || ((self.X + 1) % 40) == ((self.cycle - 1) % 40) {
+        if ((self.x - 1) % 40) == ((self.cycle - 1) % 40)
+            || ((self.x) % 40) == ((self.cycle - 1) % 40)
+            || ((self.x + 1) % 40) == ((self.cycle - 1) % 40)
+        {
             '#'
         } else {
             '.'
@@ -105,30 +109,37 @@ impl CRT {
 #[derive(Copy, Clone)]
 enum Command {
     AddX(usize, i32),
-    Noop(usize)
+    Noop(usize),
 }
 
 fn parse_input(input: &str) -> (CRT, Vec<Command>) {
-    let commands = input.split("\n").filter(|line| !line.trim().is_empty()).map(|line| {
-        let elems: Vec<_> = line.split(" ").collect();
-        match elems.first() {
-            Some(&"addx") => Command::AddX(2, elems[1].parse().unwrap()),
-            Some(&"noop") => Command::Noop(1),
-            other => panic!("Unknown command {:#?}", other)
-        }
-    }).collect();
-    (CRT {
-        cycle: 1,
-        current_command: None,
-        X: 1,
-    }, commands)
+    let commands = input
+        .split("\n")
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| {
+            let elems: Vec<_> = line.split(" ").collect();
+            match elems.first() {
+                Some(&"addx") => Command::AddX(2, elems[1].parse().unwrap()),
+                Some(&"noop") => Command::Noop(1),
+                other => panic!("Unknown command {:#?}", other),
+            }
+        })
+        .collect();
+    (
+        CRT {
+            cycle: 1,
+            current_command: None,
+            x: 1,
+        },
+        commands,
+    )
 }
 
 #[cfg(test)]
 mod test {
     use crate::{input::get_input, solution::Solution};
 
-    use super::{DAY, solve1, solve2};
+    use super::{solve1, solve2, DAY};
 
     fn sample_input() -> String {
         get_input(DAY, true, None)
@@ -141,11 +152,17 @@ mod test {
 
     #[test]
     fn sample_2() {
-        assert_eq!(Solution::String("##..##..##..##..##..##..##..##..##..##..
+        assert_eq!(
+            Solution::String(
+                "##..##..##..##..##..##..##..##..##..##..
 ###...###...###...###...###...###...###.
 ####....####....####....####....####....
 #####.....#####.....#####.....#####.....
 ######......######......######......####
-#######.......#######.......#######.....".into()), solve2(&sample_input()));
+#######.......#######.......#######....."
+                    .into()
+            ),
+            solve2(&sample_input())
+        );
     }
 }

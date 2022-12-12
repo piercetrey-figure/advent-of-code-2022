@@ -1,4 +1,7 @@
-use std::collections::{HashSet, VecDeque};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    num,
+};
 
 use phf::{phf_map, Set};
 
@@ -15,24 +18,25 @@ pub fn solve() -> SolutionPair {
 }
 
 fn solve1(input: &str) -> Solution {
-    let mut rope = Rope::init(input);
+    let mut rope = Rope::init(input, 2);
     rope.advance_all();
-    Solution::I32(rope.tail_visited.len() as i32)
+    Solution::I32(rope.tails_visited[&1].len() as i32)
 }
 
 fn solve2(input: &str) -> Solution {
-    Solution::I32(0)
+    let mut rope = Rope::init(input, 10);
+    rope.advance_all();
+    Solution::I32(rope.tails_visited[&9].len() as i32)
 }
 
 struct Rope {
-    tail_visited: HashSet<(i32, i32)>,
-    head_position: (i32, i32),
-    tail_position: (i32, i32),
+    tails_visited: HashMap<i32, HashSet<(i32, i32)>>,
+    positions: Vec<(i32, i32)>,
     moves: VecDeque<(String, i32)>,
 }
 
 impl Rope {
-    fn init(input: &str) -> Self {
+    fn init(input: &str, num_knots: i32) -> Self {
         let moves = input
             .split("\n")
             .filter(|l| !l.trim().is_empty())
@@ -41,10 +45,16 @@ impl Rope {
                 (elements[0].to_string(), elements[1].parse().unwrap())
             })
             .collect();
+        let mut tails_visited = HashMap::default();
+        let positions = (0..num_knots)
+            .map(|i| {
+                tails_visited.insert(i, HashSet::from([(0, 0)]));
+                (0, 0)
+            })
+            .collect();
         Self {
-            tail_visited: HashSet::from([(0, 0)]),
-            head_position: (0, 0),
-            tail_position: (0, 0),
+            tails_visited,
+            positions,
             moves,
         }
     }
@@ -59,25 +69,29 @@ impl Rope {
         let (dir, amt) = self.moves.pop_front().unwrap();
         for i in (0..amt) {
             match dir.as_str() {
-                "U" => self.head_position = (self.head_position.0, self.head_position.1 + 1),
-                "D" => self.head_position = (self.head_position.0, self.head_position.1 - 1),
-                "L" => self.head_position = (self.head_position.0 - 1, self.head_position.1),
-                "R" => self.head_position = (self.head_position.0 + 1, self.head_position.1),
+                "U" => self.positions[0] = (self.positions[0].0, self.positions[0].1 + 1),
+                "D" => self.positions[0] = (self.positions[0].0, self.positions[0].1 - 1),
+                "L" => self.positions[0] = (self.positions[0].0 - 1, self.positions[0].1),
+                "R" => self.positions[0] = (self.positions[0].0 + 1, self.positions[0].1),
                 _ => panic!("unknown direction {}", dir),
             }
-            self.advance_tail()
+            self.advance_tails()
         }
     }
 
-    fn advance_tail(&mut self) {
-        if Self::distance(self.tail_position, self.head_position) > 2f32.sqrt() {
-            let dx = self.head_position.0 - self.tail_position.0;
-            let dy = self.head_position.1 - self.tail_position.1;
-            self.tail_position = (
-                self.tail_position.0 + (dx.signum() * 1),
-                self.tail_position.1 + (dy.signum() * 1),
-            );
-            self.tail_visited.insert(self.tail_position);
+    fn advance_tails(&mut self) {
+        for i in 1..self.positions.len() {
+            if Self::distance(self.positions[i], self.positions[i - 1]) > 2f32.sqrt() {
+                let dx = self.positions[i - 1].0 - self.positions[i].0;
+                let dy = self.positions[i - 1].1 - self.positions[i].1;
+                self.positions[i] = (
+                    self.positions[i].0 + (dx.signum() * 1),
+                    self.positions[i].1 + (dy.signum() * 1),
+                );
+                self.tails_visited.entry(i as i32).and_modify(|e| {
+                    e.insert(self.positions[i]);
+                });
+            }
         }
     }
 

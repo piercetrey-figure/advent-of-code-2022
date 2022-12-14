@@ -1,7 +1,3 @@
-use std::collections::HashSet;
-
-use phf::{phf_map, Set};
-
 use crate::{
     input::get_input,
     solution::{Solution, SolutionPair},
